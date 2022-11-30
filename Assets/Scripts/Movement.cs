@@ -5,15 +5,18 @@ using UnityEngine;
 public class Movement : MonoBehaviour
 {
     Rigidbody rb;
+    AudioSource audioSource;
     [SerializeField] float rocketSpeed = 1500.0f;
     [SerializeField] float rotationSpeed = 100.0f;
-
+    [SerializeField] AudioClip mainEngine;
+    [SerializeField] ParticleSystem engineParticles;
+    
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        audioSource = GetComponent<AudioSource>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         ProcessThrust();
@@ -24,11 +27,41 @@ public class Movement : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Space))
         {
-            rb.AddRelativeForce(Vector3.up*Time.deltaTime*rocketSpeed);
+            StartThrusting();
         }
+        else 
+        {
+            audioSource.Stop();
+            engineParticles.Stop();
+        }
+
+    }
+    void ProcessRotation()
+    {
+        StartRotating();
     }
     
-    void ProcessRotation()
+    void ApplyRotation(float rotationThisFrame)
+    {
+        rb.freezeRotation = true;
+        transform.Rotate(Vector3.forward*Time.deltaTime*rotationThisFrame);
+        rb.freezeRotation = false;
+    }
+    
+    void StartThrusting()
+    {
+        rb.AddRelativeForce(Vector3.up*Time.deltaTime*rocketSpeed);
+            
+            if (!engineParticles.isPlaying)
+            {
+                engineParticles.Play();
+            }
+            if (!audioSource.isPlaying) 
+            {
+                audioSource.PlayOneShot(mainEngine);    
+            }
+    }
+    void StartRotating()
     {
         if (Input.GetKey(KeyCode.A))
         {
@@ -38,11 +71,5 @@ public class Movement : MonoBehaviour
         {
             ApplyRotation(-rotationSpeed);
         }
-    }
-    void ApplyRotation(float rotationThisFrame)
-    {
-        rb.freezeRotation = true;
-        transform.Rotate(Vector3.forward*Time.deltaTime*rotationThisFrame);
-        rb.freezeRotation = false;
     }
 }
