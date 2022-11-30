@@ -40,7 +40,6 @@ public class Movement : MonoBehaviour
     {
         StartRotating();
     }
-    
     void ApplyRotation(float rotationThisFrame)
     {
         rb.freezeRotation = true;
